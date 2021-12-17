@@ -1,33 +1,47 @@
 import React from 'react';
-import { Route, Link } from 'react-router-dom';
+import { Route, Link, Routes, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import './App.css';
 
-const HomePage = props => {
-  console.log(props);
+// @ToDo: It would be interesting to demonstrate how nested routes work and the use of the <Outlet /> element
+
+const HomePage = () => {
+  // Source: https://reactrouter.com/docs/en/v6/upgrading/v5#use-usenavigate-instead-of-usehistory
+  let navigate = useNavigate();
   return (
     <div>
-      <button onClick={() => props.history.push('/topics')}>Topics </button>
+      {
+        /**
+         * This would be interesting, for example, in case we need an automatic redirection after a form submit 
+         */
+      }
+      <button onClick={() => navigate('/blog/topics')}>Topics </button>
       <h1>HOME PAGE</h1>
     </div>
   );
 };
 
-const TopicsList = props => {
+const TopicsList = () => {
+  console.log('TopicsList');
+  let location = useLocation();
   return (
     <div>
       <h1>TOPIC LIST PAGE</h1>
-      <Link to={`${props.match.url}/13`}>TO TOPIC 13</Link>
-      <Link to={`${props.match.url}/17`}>TO TOPIC 17</Link>
-      <Link to={`${props.match.url}/21`}>TO TOPIC 21</Link>
+      {/** This would be a relative route */}
+      <Link to={`13`}>TO TOPIC 13</Link>
+      {/** This builds the "to" parameter like in the previous version */}
+      <Link to={`${location.pathname}/17`}>TO TOPIC 17</Link>
+      <Link to={`${location.pathname}/21`}>TO TOPIC 21</Link>
     </div>
   );
 };
 
-const TopicDetail = props => {
+const TopicDetail = () => {
+  const params = useParams();
+  console.log(`TopicDetail ${params.topicId}`);
   return (
     <div>
-      <h1>TOPIC DETAIL PAGE: {props.match.params.topicId}</h1>
+      <h1>TOPIC DETAIL PAGE: {params.topicId}</h1>
     </div>
   );
 };
@@ -35,11 +49,19 @@ const TopicDetail = props => {
 function App() {
   return (
     <div>
-      <Route exact path='/' component={HomePage} />
-      <Route exact path='/blog/asdqw/topics' component={TopicsList} />
-      <Route path='/blog/asdqw/topics/:topicId' component={TopicDetail} />
-      <Route exact path='/blog/topics' component={TopicsList} />
-      <Route path='/blog/topics/:topicId' component={TopicDetail} />
+      {
+        /** 
+        * `exact` is no longer necessary, as now Routes select the most specific route, 
+        * regardless of the declaration order. 
+        */
+       }
+      <Routes>
+        <Route path='/' element={<HomePage />} />
+        <Route path='/blog/asdqw/topics' element={<TopicsList />} />
+        <Route path='/blog/asdqw/topics/:topicId' element={<TopicDetail />} />
+        <Route path='/blog/topics' element={<TopicsList />} />
+        <Route path='/blog/topics/:topicId' element={<TopicDetail />} />
+      </Routes>
     </div>
   );
 }
